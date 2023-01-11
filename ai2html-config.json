@@ -1,0 +1,41 @@
+{
+  "fonts": [
+    {
+      "aifont": "AtlasGrotesk-Bold",
+      "family": "Atlas Grotesk",
+      "weight": "700",
+      "style": ""
+    },
+    {
+      "aifont": "AtlasGrotesk-Regular",
+      "family": "Atlas Grotesk",
+      "weight": "400",
+      "style": ""
+    },
+    {
+      "aifont": "DecimaMonoPro",
+      "family": "DecimaMonoPro",
+      "weight": "400",
+      "style": ""
+    },
+    {
+      "aifont": "DecimaMonoPro-Bold",
+      "family": "DecimaMonoPro-Bold",
+      "weight": "700",
+      "style": ""
+    },
+    {
+      "aifont": "Decima",
+      "family": "Decima",
+      "weight": "400",
+      "style": ""
+    }
+  ],
+  "local_preview_template": "ai2html-template.html",
+  "center_html_output": false,
+  "hed": "",
+  "dek": "",
+  "note": "",
+  "source": "",
+  "alt": ""
+}

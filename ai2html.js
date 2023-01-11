@@ -64,7 +64,7 @@ var defaultSettings = {
   "output": "one-file",      // Options: one-file, multiple-files
   "project_name": "",        // Defaults to the name of the AI file
   "project_type": "",
-  "html_output_path": "/ai2html-output/",
+  "html_output_path": "/ai2html-output/", // ~~ FiveThirtyEight Custom ~~ RYAN BEST on 1.10.23 ~~ this will get overwritten by the name of the document
   "html_output_extension": ".html",
   "image_output_path": "",
   "image_source_path": null,
@@ -493,6 +493,11 @@ try {
 
   nameSpace = docSettings.namespace || nameSpace;
 
+  // ~~ FiveThirtyEight Custom ~~ //
+  docSettings.html_output_path = "/" + docName + "/"; // ~~ use the docName as the output path ~~ //
+  docSettings.apple_news_src = docName + "-apple-news.png";
+  // ~~~~~~~~~~ //
+
   if (!textBlockData.settings) {
     createSettingsBlock(docSettings);
   }
@@ -656,6 +661,29 @@ function render(settings, customBlocks) {
   });
 
   //=====================================
+  // Generate Apple News Screenshot (FiveThirtyEight Custom)
+  //=====================================
+  var artboards = app.activeDocument.artboards;
+  for (var i = 0; i < artboards.length; i++) {
+    var artboardName = artboards[i].name;
+    if (artboardName === '-apple-news') {
+        artboards.setActiveArtboardIndex(i);
+        var appleNewsOutputFileName = docName + "-apple-news.png";
+        var fileSpec = new File(app.activeDocument.path + settings.html_output_path + appleNewsOutputFileName);
+        var scaling = 200;
+        var fileType = ExportType.PNG24;
+        var options = new ExportOptionsPNG24();
+        options.artBoardClipping = true;
+        options.antiAliasing = false;
+        options.horizontalScale = scaling;
+        options.verticalScale = scaling;
+        options.transparency = false;
+        app.activeDocument.exportFile(fileSpec, fileType, options);
+    }
+  }
+  
+
+  //=====================================
   // Post-output operations
   //=====================================
 
@@ -670,6 +698,13 @@ function render(settings, customBlocks) {
   if (settings.cache_bust_token) {
     incrementCacheBustToken(settings);
   }
+
+  // ~~ FiveThirtyEight Custom ~~ //
+  // ~~ zip and then delete folder
+  var folder_path = getFolderPath(settings.html_output_path);
+  var cmd = setZipCmd(folder_path);
+  term_init(cmd);
+  // ~~~~~~~~~~ //
 
 } // end render()
 
@@ -1315,7 +1350,7 @@ function getScriptDirectory() {
 //   formatted text blocks
 function initSpecialTextBlocks() {
   var rxp = /^ai2html-(css|js|html|settings|text|html-before|html-after)\s*$/;
-  var settings = null;
+  var settings = {};
   var code = {};
   forEach(doc.textFrames, function(thisFrame) {
     // var contents = thisFrame.contents; // caused MRAP error in AI 2017
@@ -1325,6 +1360,18 @@ function initSpecialTextBlocks() {
       match = rxp.exec(thisFrame.lines[0].contents);
       type = match ? match[1] : null;
     }
+
+    // ~~ FiveThirtyEight Custom ~~ //
+    // ~~ if the text block has a "name" in the Illustrator file that starts with a # (like an id in html/css),
+    // ~~ then also add that "name" to the settings block, and pass it as if it was defined in an ai2html-text block
+    // ~~ this allows us to pull the hed, dek, note and source from the "real" mobile artboard into the html template
+    // ~~ do not add it to the settings if it already exists (read: if it was also passed thru the ai2html-text block)
+    if (thisFrame.name && /^#/.test(thisFrame.name) && !settings[thisFrame.name.replace('#', '')]) {
+      settings[thisFrame.name.replace('#', '')] = thisFrame.contents;
+      return;
+    }
+    // ~~~~~~~~~~ //
+
     if (!type) return; // not a special block
     if (objectIsHidden(thisFrame)) {
       if (type == 'settings') {
@@ -4451,5 +4498,89 @@ function generateOutputHtml(content, pageName, settings) {
     outputLocalPreviewPage(textForFile, previewFileDestination, settings);
   }
 }
+
+// ==================================
+// TERMINAL STUFF (to zip files)
+// ==================================
+
+function term_init(cmd) {
+  var shellScript = [
+    cmd,
+    'exit'
+  ].join('; ');
+  //https://stackoverflow.com/questions/8798641/close-terminal-window-from-within-shell-script-unix
+  var termfile = createTermFile('ai2html-inset', '/tmp', shellScript);
+  termfile.execute();
+}
+
+function createTermFile(filename, path, shellScript) {
+    /*
+    http://docstore.mik.ua/orelly/unix3/mac/ch01_03.htm
+    1.3.1.1. .term files
+    You can launch a customized Terminal window from the command line by saving some prototypical Terminal settings to a .term file,
+    then using the open command to launch the .term file (see "open" in Section 1.5.4, later in this chapter).
+    You should save the .term file someplace where you can find it later, such as ~/bin or ~/Documents.
+    If you save it in ~/Library/Application Support/Terminal, the .term file will show up in Terminal's File  Library menu.
+    To create a .term file, open a new Terminal window, and then open the Inspector (File  Show Info, or -I)
+    and set the desired attributes, such as window size, fonts, and colors. When the Terminal's attributes
+    have been set, save the Terminal session (File Save, or -S) to a .term file (for example, ~/Documents/proto.term).
+    Now, any time you want to launch a Terminal window from the command line, you can issue the following command:
+    */
+    // Reference : https://github.com/fabianmoronzirfas/exec-term/blob/master/create_and_execute_term.jsx
+
+    var shellPath = path.replace(/%20/g, '\\ ');
+    var termfile = new File(shellPath + '/' + filename + '.term');
+    termfile.open('w');
+    termfile.writeln([
+        '<?xml version=\'1.0\' encoding=\'UTF-8\'?>',
+        '<!DOCTYPE plist PUBLIC \'-//Apple Computer//DTD PLIST 1.0//EN\'' +
+        '\'http://www.apple.com/DTDs/PropertyList-1.0.dtd\'>',
+        '<plist version=\'1.0\'>',
+        '<dict>',
+        '<key>WindowSettings</key>',
+        '<array>',
+        ' <dict>',
+        '  <key>CustomTitle</key>',
+        '  <string>Ai2Html Inset: Parse HTML and then zip files</string>',
+        '  <key>ExecutionString</key>',
+        '  <string>' + shellScript + '</string>',
+        ' </dict>',
+        '</array>', 
+        '</dict>',
+        '</plist>'
+    ].join('\n'));
+    termfile.close();
+    return termfile;
+}
+
+var term = (function() {
+
+    function init(cmd) {
+      warn(cmd);
+        var shellScript = [
+            cmd,
+            'exit'
+        ].join('; ');
+        //https://stackoverflow.com/questions/8798641/close-terminal-window-from-within-shell-script-unix
+        var termfile = createTermFile('ai2html-inset', '/tmp', shellScript);
+        termfile.execute();
+    }
+
+    return {
+        init: init
+    };
+}());
+
+function getFolderPath(output_path) {
+  var doc = app.activeDocument;
+  folder_path = unescape(doc.path).replace(/ /g, '\\ ');
+  return folder_path;
+}
+
+function setZipCmd(folder_path) {
+  var zip_cmd = 'cd ' + folder_path + '; zip -r ' + docName + '.zip ' + docName + '; rm -r ' + docName;
+  return zip_cmd;
+}
+
 } // end main() function definition
 main();

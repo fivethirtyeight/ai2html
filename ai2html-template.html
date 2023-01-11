@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://fivethirtyeight.com/wp-content/themes/espn-fivethirtyeight/dist/css/fiveThirtyEight.css">
+	<title>{{ alt }}</title>
+</head>
+<body>
+	<div class="ai2html-container">
+		<div class="chart-header">
+			<h1 class="hed">{{ hed }}</h1>
+			<p class="dek">{{ dek }}</p>
+		</div>
+		<figure>
+			{{ ai2htmlPartial }}
+		</figure>
+		<img style="display:none;" alt="{{ alt }}" src="{{ apple_news_src }}"/>
+		<div class="note">{{ note }}</div>
+		<div class="chart-footer">
+			<div class="footer-left">FiveThirtyEight</div>
+			<div class="footer-right">{{ source }}</div>
+		</div>
+	</div>
+	<!-- ai2html responsive graphic script -->
+	<!-- Adapted from https://github.com/newsdev/ai2html/blob/gh-pages/_includes/resizer-script.html -->
+	<script type="text/javascript">
+		(function () {
+			// only want one resizer on the page
+			if (document.documentElement.className.indexOf("g-resizer-v3-init") > -1) return;
+			document.documentElement.className += " g-resizer-v3-init";
+			// require IE9+
+			if (!("querySelector" in document)) return;
+
+			function resizer() {
+				var elements = Array.prototype.slice.call(document.querySelectorAll("[data-min-width]")),
+					widthById = {};
+				elements.forEach(function (el) {
+					var parent = el.parentNode,
+						width = widthById[parent.id] || parent.getBoundingClientRect().width,
+						minwidth = el.getAttribute("data-min-width"),
+						maxwidth = el.getAttribute("data-max-width");
+					widthById[parent.id] = width;
+
+					if (+minwidth <= width && (+maxwidth >= width || maxwidth === null)) {
+						el.style.display = "block";
+					} else {
+						el.style.display = "none";
+					}
+				});
+				try {
+					if (window.parent && window.parent.$) {
+						window.parent.$("body").trigger("resizedcontent", [window]);
+					}
+				} catch (e) {
+					console.log(e);
+				}
+				// For Pym.js compatibility
+				// makes sure child iframe adjusts after resizer function fires
+				child.sendHeight()
+			}
+
+			document.addEventListener('DOMContentLoaded', resizer);
+			// feel free to replace throttle with _.throttle, if available
+			window.addEventListener('resize', throttle(resizer, 200));
+
+			function throttle(func, wait) {
+				// from underscore.js
+				var _now = Date.now || function () {
+						return new Date().getTime();
+					},
+					context, args, result, timeout = null, previous = 0;
+				var later = function () {
+					previous = _now();
+					timeout = null;
+					result = func.apply(context, args);
+					if (!timeout) context = args = null;
+				};
+				return function () {
+					var now = _now(), remaining = wait - (now - previous);
+					context = this;
+					args = arguments;
+					if (remaining <= 0 || remaining > wait) {
+						if (timeout) {
+							clearTimeout(timeout);
+							timeout = null;
+						}
+						previous = now;
+						result = func.apply(context, args);
+						if (!timeout) context = args = null;
+					} else if (!timeout) {
+						timeout = setTimeout(later, remaining);
+					}
+					return result;
+				};
+			}
+		})();
+	</script>
+	<!-- Pym.js script -->
+	<script type="text/javascript" src="https://pym.nprapps.org/pym.v1.min.js"></script>
+	<script>
+		var child = new pym.Child();
+	</script>
+</body>
+
+</html>
