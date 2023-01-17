@@ -14,13 +14,13 @@
     },
     {
       "aifont": "DecimaMonoPro",
-      "family": "DecimaMonoPro",
+      "family": "DecimaMono,monospace",
       "weight": "400",
       "style": ""
     },
     {
       "aifont": "DecimaMonoPro-Bold",
-      "family": "DecimaMonoPro-Bold",
+      "family": "DecimaMono,monospace",
       "weight": "700",
       "style": ""
     },
@@ -33,6 +33,7 @@
   ],
   "local_preview_template": "ai2html-template.html",
   "center_html_output": false,
+  // "image_format": ["svg"],
   "hed": "",
   "dek": "",
   "note": "",
