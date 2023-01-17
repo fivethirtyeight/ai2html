@@ -4578,7 +4578,7 @@ function getFolderPath(output_path) {
 }
 
 function setZipCmd(folder_path) {
-  var zip_cmd = 'cd ' + folder_path + '; zip -r ' + docName + '.zip ' + docName + '; rm -r ' + docName;
+  var zip_cmd = 'cd ' + folder_path + '; rm ' + docName + '.zip; zip -r ' + docName + '.zip ' + docName + '; rm -r ' + docName;
   return zip_cmd;
 }
 
