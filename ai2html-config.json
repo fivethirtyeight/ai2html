@@ -13,6 +13,18 @@
       "style": ""
     },
     {
+      "aifont": "AtlasGrotesk-BoldItalic",
+      "family": "Atlas Grotesk",
+      "weight": "700",
+      "style": "italic"
+    },
+    {
+      "aifont": "AtlasGrotesk-RegularItalic",
+      "family": "Atlas Grotesk",
+      "weight": "400",
+      "style": "italic"
+    },
+    {
       "aifont": "DecimaMonoPro",
       "family": "DecimaMono,monospace",
       "weight": "400",
