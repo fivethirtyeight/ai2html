@@ -2,25 +2,25 @@
   "fonts": [
     {
       "aifont": "AtlasGrotesk-Bold",
-      "family": "Atlas Grotesk",
+      "family": "\"AtlasGroteskWeb\",\"Helvetica Neue\",Helvetica,Arial,sans-serif",
       "weight": "700",
       "style": ""
     },
     {
       "aifont": "AtlasGrotesk-Regular",
-      "family": "Atlas Grotesk",
+      "family": "\"AtlasGroteskWeb\",\"Helvetica Neue\",Helvetica,Arial,sans-serif",
       "weight": "400",
       "style": ""
     },
     {
       "aifont": "AtlasGrotesk-BoldItalic",
-      "family": "Atlas Grotesk",
+      "family": "\"AtlasGroteskWeb\",\"Helvetica Neue\",Helvetica,Arial,sans-serif",
       "weight": "700",
       "style": "italic"
     },
     {
       "aifont": "AtlasGrotesk-RegularItalic",
-      "family": "Atlas Grotesk",
+      "family": "\"AtlasGroteskWeb\",\"Helvetica Neue\",Helvetica,Arial,sans-serif",
       "weight": "400",
       "style": "italic"
     },
