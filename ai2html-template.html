@@ -66,8 +66,8 @@
 			function throttle(func, wait) {
 				// from underscore.js
 				var _now = Date.now || function () {
-						return new Date().getTime();
-					},
+					return new Date().getTime();
+				},
 					context, args, result, timeout = null, previous = 0;
 				var later = function () {
 					previous = _now();
@@ -95,11 +95,5 @@
 			}
 		})();
 	</script>
-	<!-- Pym.js script -->
-	<script type="text/javascript" src="https://pym.nprapps.org/pym.v1.min.js"></script>
-	<script>
-		var child = new pym.Child();
-	</script>
 </body>
-
 </html>
